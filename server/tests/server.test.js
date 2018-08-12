@@ -12,7 +12,9 @@ const todos = [
   },
   {
     text: 'second test todo',
-    _id: new ObjectID()
+    _id: new ObjectID(),
+    completed: true,
+    completedAt: 333
   }
 ];
 
@@ -151,4 +153,82 @@ describe('DELETE /todos/:id', () => {
       .expect(404)
       .end(done);
   });
+});
+
+describe('PATCH /todos/:id', () => {
+  it('Should update an existing todo, completing it', (done) => {
+    var hexId = todos[0]._id.toHexString();
+    var completedTodo = {
+      completed: true
+    }
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send(completedTodo)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.completed).to.be.true;
+        expect(res.body.todo.completedAt).to.exist;
+        expect(res.body.todo.completedAt).to.be.approximately(new Date().getTime(), 1000);
+      }).end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+        //query db using findbyId
+        Todo.findById(hexId).then((todo) => {
+          expect(todo.completed).to.be.true; 
+          done();
+        }).catch((e) => {
+          done(e);
+        });
+      });
+    
+  });
+
+  it('Should clear completedAt when todo is not completed', (done) => {
+    var hexId = todos[1]._id.toHexString();
+    var todo = {
+      completed: false
+    }
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send(todo)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.completed).to.be.false;
+        expect(res.body.todo.completedAt).to.not.exist;
+      }).end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+        //query db using findbyId
+        Todo.findById(hexId).then((todo) => {
+          expect(todo.completed).to.be.false; 
+          expect(todo.completedAt).to.not.exist;
+          done();
+        }).catch((e) => {
+          done(e);
+        });
+      });
+    
+  });
+
+  it('Should return 404 if todo does not exist', (done) => {
+    var hexId = new ObjectID().toHexString(); // some random id
+    var todo = {};
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send(todo)
+      .expect(404)
+      .end(done);
+  })
+
+  it('Should return 404 if id is not valid todo', (done) => {
+    var hexId = 'dsadsa43224'; // some random id
+    var todo = {};
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send(todo)
+      .expect(404)
+      .end(done);
+  })
 });
