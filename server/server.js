@@ -48,7 +48,7 @@ app.get('/todos/:id', (req, res) => {
         if (!todo) {
             return res.status(404).send(null);
         }
-        res.send(todo);
+        res.send({todo});
     }).catch((e) => {
         res.status(400).send(e);
     });
@@ -60,11 +60,11 @@ app.delete('/todos/:id', (req, res) => {
         res.status(404).send(null);
         return false;
     };
-    Todo.findByIdAndRemove(id).then((result) => {
-        if (!result) {
+    Todo.findByIdAndRemove(id).then((todo) => {
+        if (!todo) {
             return res.status(404).send(null);
         }
-        res.send(result);
+        res.send({todo});
     }).catch((e) => {
         res.status(400).send(e);
     })
