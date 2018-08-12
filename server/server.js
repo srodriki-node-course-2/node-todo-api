@@ -14,6 +14,10 @@ app.use(bodyParser.json());
 
 services.install(app);
 
+app.get('/', (req, res) => {
+    res.send('Todo Api Home');
+});
+
 app.listen(PORT, () => {
     console.log(`Started on port ${PORT}`);
 });
