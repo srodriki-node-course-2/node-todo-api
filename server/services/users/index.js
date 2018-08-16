@@ -1,6 +1,8 @@
 const { ObjectID } = require('mongodb');
 const _ = require('lodash');
 
+const authenticate = require('../../middleware/authenticate.js');
+
 var { User } = require('../../models/user');
 
 module.exports = (app) => {
@@ -21,10 +23,16 @@ module.exports = (app) => {
     res.send('ok');
   });
 
+  app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user);
+  });
+
   app.get('/users/:id', (req, res) => {
     res.send('ok');
 
   });
+
+  
 
   app.patch('/users/:id', (req, res) => {
     res.send('ok');
